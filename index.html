@@ -2,6 +2,54 @@
 <html>
 <head>
 	<title>Home</title>
+<script>
+/*
+ * Available context bindings:
+ *   COLUMNS     List<DataColumn>
+ *   ROWS        Iterable<DataRow>
+ *   OUT         { append() }
+ *   FORMATTER   { format(row, col); formatValue(Object, col) }
+ *   TRANSPOSED  Boolean
+ * plus ALL_COLUMNS, TABLE, DIALECT
+ *
+ * where:
+ *   DataRow     { rowNumber(); first(); last(); data(): List<Object>; value(column): Object }
+ *   DataColumn  { columnNumber(), name() }
+ */
+
+/*
+ * Based on HTML-JavaScript.html.js data extractor
+ */
+
+'use strict';
+
+var NEWLINE = "\n";
+function eachWithIdx(iterable, f) { var i = iterable.iterator(); var idx = 0; while (i.hasNext()) f(i.next(), idx++); }
+function output() { for (var i = 0; i < arguments.length; i++) { OUT.append(arguments[i]); } }
+
+output('[');
+eachWithIdx(ROWS, function (row, i) {
+   output(i ? ',':'', NEWLINE, '  {');
+   eachWithIdx(COLUMNS, function (col, j) {
+      var value = FORMATTER.format(row, col);
+      switch (true) {
+         case value.toUpperCase() == 'NULL':
+            value = null;
+            break;
+         case parseInt(value).toString() == value:
+            value = parseInt(value);
+            break;
+         case parseFloat(value).toString() == value:
+            value = parseFloat(value);
+            break;
+      }
+      output(j ? ',':'', NEWLINE, '    ', JSON.stringify(col.name()), ':', JSON.stringify(value));
+   });
+   output(NEWLINE, '  }');
+});
+output(NEWLINE, ']');
+
+</script>
 </head>
 <body>
 
